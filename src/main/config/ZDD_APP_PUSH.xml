@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<maven2-moduleset plugin="maven-plugin@2.12.1">
+  <actions/>
+  <description>Push&apos;s the application to the PCF environment</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.cloudbees.plugins.deployer.DeployNowJobProperty plugin="deployer-framework@1.1">
+      <oneClickDeploy>false</oneClickDeploy>
+      <hosts>
+        <com.cloudbees.plugins.deployer.impl.amazon.HostImpl plugin="cloudbees-aws-deployer@1.15">
+          <targets class="java.util.Collections$UnmodifiableRandomAccessList" resolves-to="java.util.Collections$UnmodifiableList">
+            <c class="list"/>
+            <list reference="../c"/>
+          </targets>
+          <credentialsId></credentialsId>
+        </com.cloudbees.plugins.deployer.impl.amazon.HostImpl>
+      </hosts>
+    </com.cloudbees.plugins.deployer.DeployNowJobProperty>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.17.1">
+      <projectUrl>https://github.com/cglean/cg-lean-ZDD.git/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.2">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/cglean/cg-lean-ZDD.git/</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <jdk>(System)</jdk>
+  <triggers>
+    <hudson.triggers.SCMTrigger>
+      <spec>*/1 * * * *</spec>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <rootModule>
+    <groupId>com.gopivotal.pcf.sme.ers</groupId>
+    <artifactId>pcf-ers-demo1</artifactId>
+  </rootModule>
+  <goals>clean install</goals>
+  <mavenName>Maven 3 (built-in)</mavenName>
+  <aggregatorStyleBuild>true</aggregatorStyleBuild>
+  <incrementalBuild>false</incrementalBuild>
+  <ignoreUpstremChanges>true</ignoreUpstremChanges>
+  <archivingDisabled>false</archivingDisabled>
+  <siteArchivingDisabled>false</siteArchivingDisabled>
+  <fingerprintingDisabled>false</fingerprintingDisabled>
+  <resolveDependencies>false</resolveDependencies>
+  <processPlugins>false</processPlugins>
+  <mavenValidationLevel>-1</mavenValidationLevel>
+  <runHeadless>false</runHeadless>
+  <disableTriggerDownstreamProjects>false</disableTriggerDownstreamProjects>
+  <blockTriggerWhenBuilding>true</blockTriggerWhenBuilding>
+  <settings class="jenkins.mvn.DefaultSettingsProvider"/>
+  <globalSettings class="jenkins.mvn.DefaultGlobalSettingsProvider"/>
+  <reporters/>
+  <publishers>
+    <hudson.tasks.BuildTrigger>
+      <childProjects>ZDD_APP_TEST</childProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </hudson.tasks.BuildTrigger>
+  </publishers>
+  <buildWrappers>
+    <com.cloudbees.plugins.cloudfoundry.cli.CloudFoundryCliBuildWrapper plugin="cloudbees-cloudfoundry-cli@2.1.2">
+      <cloudFoundryCliVersion>Cloud Foundry CLI (built-in)</cloudFoundryCliVersion>
+      <apiEndpoint>https://api.cglean.com</apiEndpoint>
+      <skipSslValidation>true</skipSslValidation>
+      <credentialsId></credentialsId>
+      <space>development</space>
+      <organization>Sales</organization>
+    </com.cloudbees.plugins.cloudfoundry.cli.CloudFoundryCliBuildWrapper>
+  </buildWrappers>
+  <prebuilders/>
+  <postbuilders>
+    <hudson.tasks.Shell>
+      <command>cat /var/vcap/data/jenkins_slave/16f413ae/workspace/CG-Lean/ZDD_APP_PUSH/manifest.yml |grep &quot;name:&quot; &gt; lastestapp.txt
+sed -i s/&quot;- name: &quot;/&quot; &quot;/g lastestapp.txt
+appname=$(cat lastestapp.txt)
+
+cat /var/vcap/data/jenkins_slave/16f413ae/workspace/CG-Lean/ZDD_APP_PUSH/manifest.yml |grep &quot;domain:&quot; &gt; lastestdomain.txt
+sed -i s/&quot; domain: &quot;/&quot; &quot;/g lastestdomain.txt
+domainname=$(cat lastestdomain.txt)
+
+cat /var/vcap/data/jenkins_slave/16f413ae/workspace/CG-Lean/ZDD_APP_PUSH/manifest.yml |grep &quot;host:&quot; &gt; lastesthost.txt
+sed -i s/&quot; host: &quot;/&quot; &quot;/g lastesthost.txt
+hostname=$(cat lastesthost.txt)
+cf push $appname-new -d $domainname -n $hostname-new</command>
+    </hudson.tasks.Shell>
+  </postbuilders>
+  <runPostStepsIfResult>
+    <name>FAILURE</name>
+    <ordinal>2</ordinal>
+    <color>RED</color>
+    <completeBuild>true</completeBuild>
+  </runPostStepsIfResult>
+</maven2-moduleset>

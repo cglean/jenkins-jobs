@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.cloudbees.plugins.deployer.DeployNowJobProperty plugin="deployer-framework@1.1">
+      <oneClickDeploy>false</oneClickDeploy>
+      <hosts>
+        <com.cloudbees.plugins.deployer.impl.amazon.HostImpl plugin="cloudbees-aws-deployer@1.15">
+          <targets class="java.util.Collections$UnmodifiableRandomAccessList" resolves-to="java.util.Collections$UnmodifiableList">
+            <c class="list"/>
+            <list reference="../c"/>
+          </targets>
+          <credentialsId></credentialsId>
+        </com.cloudbees.plugins.deployer.impl.amazon.HostImpl>
+      </hosts>
+    </com.cloudbees.plugins.deployer.DeployNowJobProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <jdk>(System)</jdk>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>cat /var/vcap/data/jenkins_slave/16f413ae/workspace/CG-Lean/ZDD_APP_PUSH/manifest.yml |grep &quot;name:&quot; &gt; lastestapp.txt
+sed -i s/&quot;- name: &quot;/&quot; &quot;/g lastestapp.txt
+appname=$(cat lastestapp.txt)
+
+
+cat /var/vcap/data/jenkins_slave/16f413ae/workspace/CG-Lean/ZDD_APP_PUSH/manifest.yml |grep &quot;domain:&quot; &gt; lastestdomain.txt
+sed -i s/&quot; domain: &quot;/&quot; &quot;/g lastestdomain.txt
+domainname=$(cat lastestdomain.txt)
+
+cat /var/vcap/data/jenkins_slave/16f413ae/workspace/CG-Lean/ZDD_APP_PUSH/manifest.yml |grep &quot;host:&quot; &gt; lastesthost.txt
+sed -i s/&quot; host: &quot;/&quot; &quot;/g lastesthost.txt
+hostname=$(cat lastesthost.txt)
+
+cf map-route $appname-new $domainname -n $hostname
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.BuildTrigger>
+      <childProjects>ZDD_APP_UNMAP</childProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </hudson.tasks.BuildTrigger>
+  </publishers>
+  <buildWrappers>
+    <com.cloudbees.plugins.cloudfoundry.cli.CloudFoundryCliBuildWrapper plugin="cloudbees-cloudfoundry-cli@2.1.2">
+      <cloudFoundryCliVersion>Cloud Foundry CLI (built-in)</cloudFoundryCliVersion>
+      <apiEndpoint>https://api.cglean.com</apiEndpoint>
+      <skipSslValidation>true</skipSslValidation>
+      <credentialsId>0ed26d7d-cd74-4a4d-9b5f-99b5257477d0</credentialsId>
+      <space>development</space>
+      <organization>Sales</organization>
+    </com.cloudbees.plugins.cloudfoundry.cli.CloudFoundryCliBuildWrapper>
+  </buildWrappers>
+</project>

@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.cloudbees.plugins.deployer.DeployNowJobProperty plugin="deployer-framework@1.1">
+      <oneClickDeploy>false</oneClickDeploy>
+      <hosts>
+        <com.cloudbees.plugins.deployer.impl.amazon.HostImpl plugin="cloudbees-aws-deployer@1.15">
+          <targets class="java.util.Collections$UnmodifiableRandomAccessList" resolves-to="java.util.Collections$UnmodifiableList">
+            <c class="list"/>
+            <list reference="../c"/>
+          </targets>
+          <credentialsId></credentialsId>
+        </com.cloudbees.plugins.deployer.impl.amazon.HostImpl>
+      </hosts>
+    </com.cloudbees.plugins.deployer.DeployNowJobProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <jdk>(System)</jdk>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#read hostname
+cat /var/vcap/data/jenkins_slave/16f413ae/workspace/CG-Lean/ZDD_APP_PUSH/manifest.yml |grep &quot;host:&quot; &gt; host.txt
+sed -i s/&quot; host: &quot;/&quot; &quot;/g host.txt
+hostname=$(cat host.txt)
+
+#read appname
+cat /var/vcap/data/jenkins_slave/16f413ae/workspace/CG-Lean/ZDD_APP_PUSH/manifest.yml |grep &quot;name:&quot; &gt; lastestapp.txt
+sed -i s/&quot;- name: &quot;/&quot; &quot;/g lastestapp.txt
+appname=$(cat lastestapp.txt)
+
+#read domainname
+cat /var/vcap/data/jenkins_slave/16f413ae/workspace/CG-Lean/ZDD_APP_PUSH/manifest.yml |grep &quot;domain:&quot; &gt; lastestapp.txt
+sed -i s/&quot; domain: &quot;/&quot; &quot;/g lastestapp.txt
+domainname=$(cat lastestapp.txt)
+
+#sed -i s/&quot;oldname: &quot;/&quot; &quot;/g /var/vcap/data/jenkins_slave/16f413ae/workspace/CG-Lean/ZDD-Push/appinfo.txt
+#oldappname=$(cat /var/vcap/data/jenkins_slave/16f413ae/workspace/CG-Lean/ZDD-Push/appinfo.txt)
+#cf unmap-route $oldappname cglean.com -n $hostname
+cf unmap-route $appname $domainname -n $hostname
+cf unmap-route $appname-new $domainname -n $hostname-new</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.BuildTrigger>
+      <childProjects>ZDD_APP_DELETE</childProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </hudson.tasks.BuildTrigger>
+  </publishers>
+  <buildWrappers>
+    <com.cloudbees.plugins.cloudfoundry.cli.CloudFoundryCliBuildWrapper plugin="cloudbees-cloudfoundry-cli@2.1.2">
+      <cloudFoundryCliVersion>Cloud Foundry CLI (built-in)</cloudFoundryCliVersion>
+      <apiEndpoint>https://api.cglean.com</apiEndpoint>
+      <skipSslValidation>true</skipSslValidation>
+      <credentialsId>0ed26d7d-cd74-4a4d-9b5f-99b5257477d0</credentialsId>
+      <space>development</space>
+      <organization>Sales</organization>
+    </com.cloudbees.plugins.cloudfoundry.cli.CloudFoundryCliBuildWrapper>
+  </buildWrappers>
+</project>

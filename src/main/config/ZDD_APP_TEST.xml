@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<maven2-moduleset plugin="maven-plugin@2.12.1">
+  <actions/>
+  <description>Push&apos;s the application to the PCF environment</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.cloudbees.plugins.deployer.DeployNowJobProperty plugin="deployer-framework@1.1">
+      <oneClickDeploy>false</oneClickDeploy>
+      <hosts>
+        <com.cloudbees.plugins.deployer.impl.amazon.HostImpl plugin="cloudbees-aws-deployer@1.15">
+          <targets class="java.util.Collections$UnmodifiableRandomAccessList" resolves-to="java.util.Collections$UnmodifiableList">
+            <c class="list"/>
+            <list reference="../c"/>
+          </targets>
+          <credentialsId></credentialsId>
+        </com.cloudbees.plugins.deployer.impl.amazon.HostImpl>
+      </hosts>
+    </com.cloudbees.plugins.deployer.DeployNowJobProperty>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.17.1">
+      <projectUrl>https://github.com/cglean/cg-lean-ZDD.git/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.2">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/cglean/cg-lean-ZDD.git/</url>
+        <credentialsId>d6fdd07b-a0e1-4dac-9d7d-ce7722e85efd</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <jdk>(System)</jdk>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <rootModule>
+    <groupId>com.gopivotal.pcf.sme.ers</groupId>
+    <artifactId>pcf-ers-demo1</artifactId>
+  </rootModule>
+  <goals>clean install</goals>
+  <mavenName>Maven 3 (built-in)</mavenName>
+  <aggregatorStyleBuild>true</aggregatorStyleBuild>
+  <incrementalBuild>false</incrementalBuild>
+  <ignoreUpstremChanges>true</ignoreUpstremChanges>
+  <archivingDisabled>false</archivingDisabled>
+  <siteArchivingDisabled>false</siteArchivingDisabled>
+  <fingerprintingDisabled>false</fingerprintingDisabled>
+  <resolveDependencies>false</resolveDependencies>
+  <processPlugins>false</processPlugins>
+  <mavenValidationLevel>-1</mavenValidationLevel>
+  <runHeadless>false</runHeadless>
+  <disableTriggerDownstreamProjects>false</disableTriggerDownstreamProjects>
+  <blockTriggerWhenBuilding>true</blockTriggerWhenBuilding>
+  <settings class="jenkins.mvn.DefaultSettingsProvider"/>
+  <globalSettings class="jenkins.mvn.DefaultGlobalSettingsProvider"/>
+  <reporters/>
+  <publishers>
+    <hudson.tasks.BuildTrigger>
+      <childProjects>ZDD_APP_SCALE</childProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </hudson.tasks.BuildTrigger>
+  </publishers>
+  <buildWrappers>
+    <com.cloudbees.plugins.cloudfoundry.cli.CloudFoundryCliBuildWrapper plugin="cloudbees-cloudfoundry-cli@2.1.2">
+      <cloudFoundryCliVersion>Cloud Foundry CLI (built-in)</cloudFoundryCliVersion>
+      <apiEndpoint>https://api.cglean.com</apiEndpoint>
+      <skipSslValidation>true</skipSslValidation>
+      <credentialsId>0ed26d7d-cd74-4a4d-9b5f-99b5257477d0</credentialsId>
+      <space>development</space>
+      <organization>Sales</organization>
+    </com.cloudbees.plugins.cloudfoundry.cli.CloudFoundryCliBuildWrapper>
+  </buildWrappers>
+  <prebuilders/>
+  <postbuilders/>
+  <runPostStepsIfResult>
+    <name>FAILURE</name>
+    <ordinal>2</ordinal>
+    <color>RED</color>
+    <completeBuild>true</completeBuild>
+  </runPostStepsIfResult>
+</maven2-moduleset>
